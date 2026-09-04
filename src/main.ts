@@ -27,7 +27,7 @@ const drawerToggle = document.getElementById("drawer-toggle")!;
 const drawerClose = document.getElementById("drawer-close")!;
 const blueprintCode = document.getElementById("blueprint-code")!;
 
-// 2. Synthesized Zero-Dependency Audio Engine
+// 2. Synthesized Audio Engine
 const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
 
 function playTone(freq: number, type: OscillatorType, duration: number, gainVal: number) {
@@ -57,7 +57,7 @@ function playCollapseSound() {
   setTimeout(() => playTone(30, "square", 0.6, 0.4), 100);
 }
 
-// 3. Three.js Scene Setup
+// 3. Three.js Scene & Baseline Camera Setup
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050706);
 scene.fog = new THREE.FogExp2(0x050706, 0.0035);
@@ -68,15 +68,19 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
+// Initial position prevents OrbitControls radius collapse
+camera.position.set(100, 45, 120);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
 container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(60, 10, 0);
 controls.enableDamping = true;
+controls.update();
 
-// Lighting Setup
+// Studio Lighting
 scene.add(new THREE.AmbientLight(0xffffff, 1.1));
 const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
 dirLight.position.set(60, 100, 40);
@@ -100,10 +104,39 @@ const adapter = new PhysicsBridgeAdapter(physics);
 // Camera Shake State
 let shakeIntensity = 0;
 
+// Simulation State Tracking
 let currentLoadMesh: THREE.Mesh | null = null;
 let activeTestLoadId: string | null = null;
 let testLoadMassKg = 0;
 let currentBridgeData: BridgeJSON | null = null;
+
+// Offline Presets for Live GitHub Pages Evaluation
+const PRESET_BLUEPRINTS: Record<string, BridgeJSON> = {
+  "200m Suspension": {
+    bridge: { length: 200, width: 12, deckHeight: 18 },
+    deck: { thickness: 1.5, jointPositions: [0, 50, 100, 150, 200], jointGap: 0.12, massKgPerMeter: 2000 },
+    pillars: { positions: [50, 150], radius: 2.2, height: 18 },
+    cables: { enabled: true, towerHeight: 48, cableRadius: 0.35, hangers: 24 }
+  },
+  "180m Viaduct": {
+    bridge: { length: 180, width: 14, deckHeight: 22 },
+    deck: { thickness: 2.8, jointPositions: [0, 30, 60, 90, 120, 150, 180], jointGap: 0.12, massKgPerMeter: 3500 },
+    pillars: { positions: [30, 60, 90, 120, 150], radius: 3.0, height: 22 },
+    cables: { enabled: false, towerHeight: 0, cableRadius: 0, hangers: 0 }
+  },
+  "140m Cantilever": {
+    bridge: { length: 140, width: 10, deckHeight: 16 },
+    deck: { thickness: 1.2, jointPositions: [0, 35, 70, 105, 140], jointGap: 0.12, massKgPerMeter: 1800 },
+    pillars: { positions: [70], radius: 2.5, height: 16 },
+    cables: { enabled: false, towerHeight: 0, cableRadius: 0, hangers: 0 }
+  },
+  "240m Causeway": {
+    bridge: { length: 240, width: 11, deckHeight: 8 },
+    deck: { thickness: 1.4, jointPositions: [0, 30, 60, 90, 120, 150, 180, 210, 240], jointGap: 0.12, massKgPerMeter: 1900 },
+    pillars: { positions: [30, 60, 90, 120, 150, 180, 210], radius: 1.2, height: 8 },
+    cables: { enabled: false, towerHeight: 0, cableRadius: 0, hangers: 0 }
+  }
+};
 
 function clearLoad(): void {
   if (currentLoadMesh) {
@@ -136,7 +169,6 @@ function buildStructure(data: BridgeJSON) {
   adapter.loadManifest(manifest);
 
   updateTelemetry("intact", data.bridge.length);
-
   blueprintCode.textContent = JSON.stringify(data, null, 2);
 
   // Auto-Frame Camera
@@ -149,11 +181,18 @@ function buildStructure(data: BridgeJSON) {
   controls.update();
 }
 
-// 5. Initial Load (Default Bridge)
-fetch("/bridge.json")
-  .then((res) => res.json())
+// 5. Initial Load (Uses BASE_URL for GitHub Pages compatibility)
+const defaultUrl = `${import.meta.env.BASE_URL}bridge.json`.replace("//", "/");
+fetch(defaultUrl)
+  .then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  })
   .then((data: BridgeJSON) => buildStructure(data))
-  .catch((err) => console.warn("Default bridge.json load skipped:", err));
+  .catch((err) => {
+    console.warn("Falling back to default built-in suspension blueprint:", err);
+    buildStructure(PRESET_BLUEPRINTS["200m Suspension"]!);
+  });
 
 // 6. UI Handlers
 function appendMessage(text: string, sender: "user" | "assistant" | "system-alert") {
@@ -175,7 +214,7 @@ function appendMessage(text: string, sender: "user" | "assistant" | "system-aler
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-async function handleGenerate(prompt: string) {
+async function handleGenerate(prompt: string, presetKey?: string) {
   if (!prompt) return;
 
   appendMessage(prompt, "user");
@@ -184,11 +223,18 @@ async function handleGenerate(prompt: string) {
   sendBtn.classList.add("loading");
 
   try {
-    const blueprint = await generateBlueprint(prompt);
-    buildStructure(blueprint);
-    appendMessage("Blueprint compiled and loaded into real-time simulation.", "assistant");
+    const apiKey = import.meta.env.VITE_AI_API_KEY;
+    // If no API key is set on live GitHub Pages, use pre-calculated presets
+    if ((!apiKey || apiKey === "YOUR_GEMINI_API_KEY_HERE") && presetKey && PRESET_BLUEPRINTS[presetKey]) {
+      buildStructure(PRESET_BLUEPRINTS[presetKey]!);
+      appendMessage(`Live Preview: Compiled "${presetKey}" structural blueprint.`, "assistant");
+    } else {
+      const blueprint = await generateBlueprint(prompt);
+      buildStructure(blueprint);
+      appendMessage("Blueprint compiled and loaded into real-time simulation.", "assistant");
+    }
   } catch (error: any) {
-    appendMessage(`Error: ${error.message || "Failed to compile blueprint."}`, "system-alert");
+    appendMessage(`Notice: ${error.message || "Failed to compile blueprint."}`, "system-alert");
   } finally {
     sendBtn.disabled = false;
     sendBtn.classList.remove("loading");
@@ -203,7 +249,8 @@ chatForm.addEventListener("submit", (e) => {
 quickPrompts.forEach((btn) => {
   btn.addEventListener("click", () => {
     const prompt = btn.getAttribute("data-prompt");
-    if (prompt) handleGenerate(prompt);
+    const presetKey = btn.textContent?.trim();
+    if (prompt) handleGenerate(prompt, presetKey);
   });
 });
 
@@ -264,7 +311,6 @@ function dropLoad(tons: number) {
     }
   }
 
-  // Spawn 1.2m above deck
   const dropX = targetSegment.position[0];
   const deckY = targetSegment.position[1];
 
@@ -346,11 +392,10 @@ function animate() {
     }
   }
 
-  // CONTINUOUS MULTI-CONSTRAINT SHEAR EVALUATOR
   const activeJoints = adapter.getActiveJoints();
   const manifest = bridge.getPhysicsManifest();
 
-  // 1. Natural Dead-Load Equilibrium (Cantilever / Self-Weight Bending)
+  // Dead-Load Bending Moment Check
   for (const [jointId, def] of activeJoints) {
     const stateA = physics.getPartState(def.bodyA);
     const stateB = physics.getPartState(def.bodyB);
@@ -380,14 +425,14 @@ function animate() {
       if (currentBridgeData) updateTelemetry("failed", currentBridgeData.bridge.length);
 
       appendMessage(
-        `DEAD-LOAD FAILURE: Segment "${failingBody}" sheared all connections under self-weight!`,
+        `DEAD-LOAD FAILURE: Segment "${failingBody}" sheared under self-weight!`,
         "system-alert"
       );
       break;
     }
   }
 
-  // 2. Live Dropped Mass Overload (Sever all joints on impacted slab)
+  // Live Load Shear Check
   if (activeTestLoadId) {
     const loadState = physics.getPartState(activeTestLoadId);
     if (loadState) {
@@ -435,7 +480,6 @@ function animate() {
     }
   }
 
-  // Camera Shake Decay
   if (shakeIntensity > 0) {
     camera.position.x += (Math.random() - 0.5) * shakeIntensity;
     camera.position.y += (Math.random() - 0.5) * shakeIntensity;
