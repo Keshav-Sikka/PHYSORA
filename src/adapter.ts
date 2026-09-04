@@ -43,10 +43,10 @@ export class PhysicsBridgeAdapter {
 
       const isDeck = b.id.startsWith("deck-segment");
 
-      // 18.5% shrinkage locks out adjacent slab collisions
+      // 22% shrinkage locks out adjacent slab collisions
       const shrinkMargin = isDeck
-        ? Math.min(Math.max(b.size[0] * 0.185, 1.2), 4.0)
-        : 0;
+      ? Math.min(Math.max(b.size[0] * 0.22, 1.5), 4.5)
+      : 0;;
 
       this.physics.addPart({
         id: b.id,
@@ -58,8 +58,8 @@ export class PhysicsBridgeAdapter {
           z: b.size[2]
         },
         dynamic: b.type === "dynamic",
-        linearDamping: b.type === "dynamic" ? 1.5 : 0,
-        angularDamping: b.type === "dynamic" ? 2.5 : 0,
+        linearDamping: b.type === "dynamic" ? 2.0 : 0,
+        angularDamping: b.type === "dynamic" ? 3.0 : 0,
         canSleep: false,
         material: {
           mass: b.massKg ?? (b.type === "dynamic" ? 1500 : 0),
