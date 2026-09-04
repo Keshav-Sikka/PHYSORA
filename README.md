@@ -1,7 +1,7 @@
 # PHYSORA
 
 > Generative Structural Engineering & Real-Time Physics Validation Simulator
-> Visit the Deployed Website: https://keshav-sikka.github.io/PHYSORA/
+Visit the Deployed Website: https://keshav-sikka.github.io/PHYSORA/
 
 [![Watch Demo Video](./media/demo_images/Stable_Bridge.png)](./media/demo_video.mp4)
 
