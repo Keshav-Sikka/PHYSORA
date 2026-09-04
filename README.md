@@ -137,4 +137,4 @@ PHYSORA operates as a pipeline connecting generative language models, 3D paramet
 * **Keshav Sikka** (Team Lead): Architectural design, LLM integration (`llm.ts`), full-stack frontend interface, camera auto-framing, audio synthesis, and the `PhysicsBridgeAdapter` interop layer linking Three.js and Rapier3D.
 * **Abhishek Gupta**: Three.js visual assembly core (`bridge.ts`), parametric geometry generation, cable catenary curve calculations, and scene lighting.
 * **Udit Jain**: Physics engine implementation (`physicsWorld.ts`, `PartFactory.ts`, `JointFactory.ts`), Rapier3D wrapper, fixed timestep accumulator, and impulse joint bindings.
-* **Sarthak Singh**: Project pitch presentation, deck architecture, research documentation, and presentation collateral.
+* **Sarthak gupta**: Project pitch presentation, deck architecture, research documentation, and presentation collateral.
