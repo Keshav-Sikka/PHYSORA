@@ -31,8 +31,10 @@ Rules:
 
 export async function generateBlueprint(userPrompt: string): Promise<BridgeJSON> {
   const apiKey = import.meta.env.VITE_AI_API_KEY;
-  if (!apiKey) {
-    throw new Error("VITE_AI_API_KEY is missing in .env file.");
+  if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
+    throw new Error(
+      "Live Preview Mode: Gemini API key is not configured on this public deployment. You can still run physical stress benchmarks, drop heavy loads, trigger shear collapses, and inspect the default model!"
+    );
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
