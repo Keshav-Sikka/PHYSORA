@@ -1,11 +1,12 @@
 # PHYSORA
 
 > Generative Structural Engineering & Real-Time Physics Validation Simulator
-Visit the Deployed Website: https://keshav-sikka.github.io/PHYSORA/
+
+**🚀Deployed Website:** [https://keshav-sikka.github.io/PHYSORA/](https://keshav-sikka.github.io/PHYSORA/)
 
 [![Watch Demo Video](./media/demo_images/Stable_Bridge.png)](./media/demo_video.mp4)
 
-> 📹 **[Click here to view / play the full System Demo Video (demo_video.mp4)](./media/demo_video.mp4)**
+> **[Click here to view / play the full System Demo Video (demo_video.mp4)](./media/demo_video.mp4)**
 
 PHYSORA is an AI-powered simulation engine that translates natural language architectural prompts into parametric exportable 3D structural models and tests their physical integrity under real-time stress dynamics. Built for hackathon evaluation, it targets civil engineers and architects looking to prototype and benchmark bridge blueprints before commissioning physical structures.
 
