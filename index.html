@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PHYSORA - Generative Structural Physics</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="layout-root">
+      <!-- Left Pane: Chat Terminal -->
+      <aside id="chat-pane">
+        <header class="pane-header">
+          <div class="brand-group">
+            <div class="brand-logo">PH</div>
+            <div>
+              <h2>PHYSORA AI</h2>
+              <span class="sub-brand">Structural Engine</span>
+            </div>
+          </div>
+          <span class="status-indicator online">System Ready</span>
+        </header>
+
+        <div id="chat-history">
+          <div class="message assistant">
+            <span class="msg-author">CORE_AI</span>
+            Synthesize a 160m dual-pylon cable-stayed suspension bridge with 3 heavy load-bearing piers.
+          </div>
+        </div>
+
+        <!-- Quick Prompt Suggestions -->
+        <div id="quick-prompts">
+          <button type="button" class="prompt-chip" data-prompt="Build a futuristic 200m dual-tower cable-stayed bridge with wide emerald deck">200m Suspension</button>
+          <button type="button" class="prompt-chip" data-prompt="Build a heavy 180m multi-span viaduct with 6 thick concrete support columns">180m Viaduct</button>
+          <button type="button" class="prompt-chip" data-prompt="Build an unstable 140m balanced cantilever bridge with only 1 central pillar at 70m">140m Cantilever</button>
+          <button type="button" class="prompt-chip" data-prompt="Build a low 240m coastal causeway overpass with 8 slim pilings at 8m height">240m Causeway</button>
+        </div>
+
+        <form id="chat-form">
+          <input 
+            type="text" 
+            id="user-input" 
+            placeholder="Initialize blueprint prompt..." 
+            autocomplete="off" 
+            required 
+          />
+          <button type="submit" id="send-btn">
+            <span class="btn-text">Generate</span>
+            <span class="btn-loader"></span>
+          </button>
+        </form>
+      </aside>
+
+      <!-- Right Pane: 3D Viewport & Overlays -->
+      <main id="viewport-pane">
+        <!-- Live Structural Telemetry Badge -->
+        <div id="telemetry-badge" class="badge-intact">
+          <span class="pulse-dot"></span>
+          <span id="telemetry-text">STATUS: INTACT [120m]</span>
+        </div>
+
+        <!-- Floating Glass Stress Panel with Reset & Hover-Expand Download -->
+        <div id="stress-panel">
+          <div class="stress-header">
+            <span class="stress-title">STRESS BENCHMARK</span>
+            <span class="stress-tag">Active Load</span>
+          </div>
+          <div class="stress-controls">
+            <div class="input-wrap">
+              <input type="number" id="load-mass" value="50" step="10" min="1" max="10000" />
+              <span class="unit">Tons</span>
+            </div>
+            <button type="button" id="drop-btn">Drop</button>
+            <button type="button" id="reset-btn" title="Rebuild baseline structure">Reset</button>
+          </div>
+
+          <!-- Hover-Expand GLTF Export Button -->
+          <div class="stress-footer">
+            <button type="button" id="export-gltf-btn" class="export-btn">
+              <svg class="dl-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span class="export-label">Export 3D (.gltf)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Slide-Up JSON Blueprint Inspection Drawer -->
+        <div id="blueprint-drawer">
+          <button type="button" id="drawer-toggle">
+            <span id="drawer-arrow">▲</span>
+            <span>Inspect Blueprint</span>
+          </button>
+          <div id="drawer-content">
+            <div class="drawer-header">
+          <span>RAW COMPILED BLUEPRINT (BridgeJSON)</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" id="drawer-close">✕</button>
+          </div>
+        </div>
+            <pre id="blueprint-code"><code>// Awaiting generation...</code></pre>
+          </div>
+        </div>
+
+        <div id="canvas-container"></div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "bridge": {
+    "length": 120,
+    "width": 12,
+    "deckHeight": 20
+  },
+  "deck": {
+    "thickness": 2,
+    "jointPositions": [10, 60, 110],
+    "jointGap": 0.12,
+    "massKgPerMeter": 1500
+  },
+  "joints": {
+    "type": "fixed",
+    "breakForceN": 2000000,
+    "breakTorqueNm": 500000
+  },
+  "pillars": {
+    "positions": [10, 60, 110],
+    "radius": 2,
+    "height": 20
+  },
+  "cables": {
+    "enabled": true,
+    "towerHeight": 40,
+    "cableRadius": 0.25,
+    "hangers": 15
+  }
+}
